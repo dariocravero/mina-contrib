@@ -6,6 +6,6 @@ Gem::Specification.new do |s|
   s.description = "A bunch of (maybe useful) Mina tasks"
   s.authors     = ["Darío Javier Cravero"]
   s.email       = 'dario@uxtemple.com'
-  s.files       = ["lib/**/*.rb"]
+  s.files       = `git ls-files`.split($/) 
   s.homepage    = 'https://github.com/dariocravero/mina-contrib'
 end

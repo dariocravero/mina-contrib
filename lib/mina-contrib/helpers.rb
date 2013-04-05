@@ -16,7 +16,7 @@ module Mina
       end
 
       def pack_settings
-        settings.map { |k,v| "#{k}=#{v}" }.join("\n")
+        settings.map { |k,v| "#{k}=#{v.is_a?(Proc) ? v.call : v}" }.join("\n")
       end
     end
   end
