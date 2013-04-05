@@ -1,5 +1,4 @@
 require 'mina-contrib/helpers'
-include Mina::Contrib::Helpers
 
 settings.nginx_enabled_sites ||= '/etc/nginx/conf.d'
 settings.nginx_upstream ||= lambda { "unix://#{deploy_to}/#{shared_path}/tmp/server.sock" }
@@ -39,7 +38,7 @@ namespace :nginx do
       echo "-----> Creating nginx's config file"
       #{echo_cmd "mkdir -p #{deploy_to}/#{shared_path}/config"}
     }
-    render("#{deploy_to}/current/nginx.conf.erb", "#{deploy_to}/#{shared_path}/config/nginx.conf")
+    render("#{deploy_to}/current/config/nginx.conf.erb", "#{deploy_to}/#{shared_path}/config/nginx.conf")
     invoke :'nginx:link'
   end
 
@@ -47,14 +46,14 @@ namespace :nginx do
   task :link do
     queue %{
       echo "-----> Creating nginx's site symlink"
-      #{echo_cmd "sudo ln -sfnv #{deploy_to}/#{shared_path}/config/nginx.conf #{nginx_enabled_sites}/#{nginx_site}"}
+      #{echo_cmd "ln -sfnv #{deploy_to}/#{shared_path}/config/nginx.conf #{nginx_enabled_sites}/#{nginx_site}"}
     }
   end
   desc 'Removing symlink to disable the site in nginx'
   task :unlink do
     queue %{
       echo "-----> Removing nginx's site symlink"
-      #{echo_cmd "sudo rm #{nginx_enabled_sites}/#{nginx_site}"}
+      #{echo_cmd "rm #{nginx_enabled_sites}/#{nginx_site}"}
     }
   end
 

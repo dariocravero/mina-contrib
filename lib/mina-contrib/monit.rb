@@ -1,5 +1,4 @@
 require 'mina-contrib/helpers'
-include Mina::Contrib::Helpers
 
 settings.environment ||= lambda { rack_env || :production }
 settings.monit_service ||= 'service monit'

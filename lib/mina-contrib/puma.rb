@@ -1,5 +1,4 @@
 require 'mina-contrib/helpers'
-include Mina::Contrib::Helpers
 
 settings.environment ||= lambda { padrino_env || rails_env || :production }
 settings.puma_service ||= 'puma'
@@ -47,7 +46,7 @@ namespace :puma do
     queue %{
       echo "-----> Creating reference in pumas' config manager"
       if [ `grep "#{deploy_to}/current" #{puma_conf} | wc -l` -eq 0 ]; then
-        #{echo_cmd "sudo echo '#{deploy_to}/current' | tee -a #{puma_conf}"}
+        #{echo_cmd "echo '#{deploy_to}/current' | tee -a #{puma_conf}"}
       fi;
     }
   end
@@ -55,7 +54,7 @@ namespace :puma do
   task :unlink do
     queue %{
       echo "-----> Removing reference in pumas' config manager"
-      #{echo_cmd  "sudo sed -i -e \"/#{deploy_to}\/current/d\" #{puma_conf}"}
+      #{echo_cmd  "sed -i -e \"/#{deploy_to}\/current/d\" #{puma_conf}"}
     }
   end
 
