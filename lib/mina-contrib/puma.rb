@@ -14,11 +14,11 @@ settings.puma_on_restart ||= false
 namespace :puma do
   desc 'Starts puma'
   task :start do
-    queue "sudo start #{puma_service} app=#{deploy_to}/current"
+    queue "sudo puma-start #{application}"
   end
   desc 'Stops puma'
   task :stop do
-    queue "sudo stop #{puma_service} app=#{deploy_to}/current"
+    queue "sudo puma-stop #{application}"
   end
   # TODO Implement in upstart script
   # desc 'Gets puma status'
@@ -27,36 +27,58 @@ namespace :puma do
   # end
   desc 'Restart puma'
   task :restart do
-    queue "sudo restart #{puma_service} app=#{deploy_to}/current"
+    queue "sudo puma-restart #{application}"
   end
 
+  # desc 'Config puma for this instance' 
+  # task :config do
+  #   queue %{
+  #     echo "-----> Creating puma's config file"
+  #     #{echo_cmd "mkdir -p #{deploy_to}/#{shared_path}/config"}
+  #     #{echo_cmd "mkdir -p #{deploy_to}/#{shared_path}/tmp/puma"}
+  #   }
+  #   render("#{deploy_to}/current/config/puma.rb.erb", "#{deploy_to}/#{shared_path}/config/puma.rb")
+  #   invoke :'puma:link'
+  # end
   desc 'Config puma for this instance' 
   task :config do
-    queue %{
-      echo "-----> Creating puma's config file"
-      #{echo_cmd "mkdir -p #{deploy_to}/#{shared_path}/config"}
-      #{echo_cmd "mkdir -p #{deploy_to}/#{shared_path}/tmp/puma"}
-    }
-    render("#{deploy_to}/current/config/puma.rb.erb", "#{deploy_to}/#{shared_path}/config/puma.rb")
+    queue %{echo "-----> Creating puma's config file"}
+    render("#{deploy_to}/current/config/puma.rb.erb",
+           "#{deploy_to}/#{shared_path}/config/puma.rb")
     invoke :'puma:link'
   end
 
-  desc "Create reference in pumas' config manager"
+  desc "Create reference in the jungle"
   task :link do
     queue %{
-      echo "-----> Creating reference in pumas' config manager"
-      if [ `grep "#{deploy_to}/current" #{puma_conf} | wc -l` -eq 0 ]; then
-        #{echo_cmd "echo '#{deploy_to}/current' | tee -a #{puma_conf}"}
-      fi;
+      echo "-----> Creating reference in the jungle"
+      #{echo_cmd "sudo puma-link #{application}"}
     }
   end
-  desc "Remove reference in pumas' config manager"
+  desc "Remove reference in the jungle"
   task :unlink do
     queue %{
-      echo "-----> Removing reference in pumas' config manager"
-      #{echo_cmd  "sed -i -e \"/#{deploy_to}\/current/d\" #{puma_conf}"}
+      echo "-----> Removing reference in the jungle"
+      #{echo_cmd "sudo puma-unlink #{application}"}
     }
   end
+
+  # desc "Create reference in pumas' config manager"
+  # task :link do
+  #   queue %{
+  #     echo "-----> Creating reference in pumas' config manager"
+  #     if [ `grep "#{deploy_to}/current" #{puma_conf} | wc -l` -eq 0 ]; then
+  #       #{echo_cmd "echo '#{deploy_to}/current' | tee -a #{puma_conf}"}
+  #     fi;
+  #   }
+  # end
+  # desc "Remove reference in pumas' config manager"
+  # task :unlink do
+  #   queue %{
+  #     echo "-----> Removing reference in pumas' config manager"
+  #     #{echo_cmd  "sed -i -e \"/#{deploy_to}\/current/d\" #{puma_conf}"}
+  #   }
+  # end
 
   desc 'Removes the instance from puma'
   task :destroy do
